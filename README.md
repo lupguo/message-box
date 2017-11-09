@@ -18,6 +18,12 @@
 4. 配置vagrant的`Homestead.yaml`配置文件，支持vhost。
 5. 做好xdebug的相关调试
 
+### 相关服务
+
+#### Socket 服务
+- 端口监听脚本： `while true;do netstat -an|grep 43210; echo "----------"; sleep 2; done`
+- 服务端执行：`php -f server.php`，开启43210端口；
+- 客户端执行：`telnet localhost 43210`；
+
 ### 待办
 - 需要把server端模拟出来，基于sock_stream()来实现，用于server端的接收调试；
-- 

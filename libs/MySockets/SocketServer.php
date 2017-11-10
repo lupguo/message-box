@@ -19,7 +19,7 @@ class SocketServer implements InterfaceServer
 	 *
 	 * @var string
 	 */
-	private $serverIp = '127.0.0.1';
+	private $serverIp = '0.0.0.0';
 
 	/**
 	 * 监听的服务器Port
@@ -83,8 +83,9 @@ class SocketServer implements InterfaceServer
 //			if ( $socketBlock == self::UNBLOCK && false == socket_set_nonblock($this->server)) {
 //				$this->triggerThrowException("socket_set_nonblock() failed !!");
 //			}
+			socket_set_nonblock($this->server);
 
-		}catch (Exception $e) {
+		}catch (\Exception $e) {
 			printf("Server start false !! %s", $e->getMessage());
 		}
 
@@ -102,7 +103,6 @@ class SocketServer implements InterfaceServer
 			if ( false === ($newc = socket_accept($this->server)) ){
 				$this->triggerThrowException("socket_accept() failed !!");
 			}
-
 			$this->clients[] = $newc;
 
 			//客户端欢迎词
@@ -113,8 +113,9 @@ class SocketServer implements InterfaceServer
 
 			//与客户端交互
 			do {
+
 				//按行读取
-				if ( false === ($buf = socket_read($newc, 1024,  PHP_NORMAL_READ )) ) {
+				if ( false === ($buf = socket_read($newc, 1024,  PHP_BINARY_READ )) ) {
 					$this->triggerThrowException("socket_read() from cleint failed !!");
 				}
 
@@ -146,9 +147,10 @@ class SocketServer implements InterfaceServer
 					//服务连接状态
 					case 'status' : {
 						$status = [
-							'serverStatus' 	=> stream_get_meta_data($this->server),
-							'clientStatus'	=> stream_get_meta_data($newc),
-							'allConnectClients'	=> $this->clients
+							'server'	=> $this->server,
+							'clients'	=> $this->clients,
+							'server_status' 	=> stream_get_meta_data($this->server),
+							'clients_status'	=> stream_get_meta_data($newc),
 						];
 
 						var_dump($status);
@@ -195,17 +197,17 @@ class SocketServer implements InterfaceServer
 		printf("Client input : %s \n", $buf);
 
 		//return to input
-		socket_write($newc, sprintf("[%s server back] %s \n", date('Y-m-d H:i:s'), $buf));
+		socket_write($newc, sprintf("[%s server back] %s \r\n", date('Y-m-d H:i:s'), $buf));
 
 	}
 
 	/**
+	 * 触发异常信息
 	 *
-	 * @param $errorMsg 异常消息
-	 *
+	 * @param string $errorMsg 异常消息
 	 * @throws \Exception
 	 */
-	private function triggerThrowException($errorMsg) {
+	private function triggerThrowException($errorMsg = '') {
 		if (is_resource($this->server)) {
 			$errorMsg = socket_strerror(socket_last_error($this->server));
 		}

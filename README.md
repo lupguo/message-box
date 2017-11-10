@@ -21,7 +21,9 @@
 ### 相关服务
 
 #### Socket 服务
-- 端口监听脚本： `while true;do netstat -an|grep 43210; echo "----------"; sleep 2; done`
+- 端口监听脚本： 
+    - `watch -d -n 0.1 'netstat -an|grep -E "43210|43211"'`
+    - `while true;do netstat -an|grep 43210; echo "----------"; sleep 2; done`
 - 服务端执行：`php -f server.php`，开启43210端口；
 - 客户端执行：`telnet localhost 43210`；
 

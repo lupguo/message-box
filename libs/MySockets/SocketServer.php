@@ -83,7 +83,7 @@ class SocketServer implements InterfaceServer
 //			if ( $socketBlock == self::UNBLOCK && false == socket_set_nonblock($this->server)) {
 //				$this->triggerThrowException("socket_set_nonblock() failed !!");
 //			}
-			socket_set_nonblock($this->server);
+//			socket_set_nonblock($this->server);
 
 		}catch (\Exception $e) {
 			printf("Server start false !! %s", $e->getMessage());
@@ -197,7 +197,7 @@ class SocketServer implements InterfaceServer
 		printf("Client input : %s \n", $buf);
 
 		//return to input
-		socket_write($newc, sprintf("[%s server back] %s \r\n", date('Y-m-d H:i:s'), $buf));
+		socket_write($newc, sprintf("[%s server back] %s \n", date('Y-m-d H:i:s'), $buf));
 
 	}
 

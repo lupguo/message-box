@@ -24,7 +24,7 @@ Class Server {
 	 *
 	 */
 	public function shutdownCallBack() {
-		echo "Server ByeBye !!! \n";
+		echo "SERVER BYEBYE !!! \n";
 	}
 
 	/**

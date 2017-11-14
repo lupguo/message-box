@@ -33,14 +33,14 @@ class SocketServer implements InterfaceServer
 	 *
 	 * @var array
 	 */
-	private $clients = [];
+	private $clientSockets = [];
 
 	/**
 	 * Socket资源
 	 *
 	 * @var resource
 	 */
-	private $server;
+	private $serverSocket;
 
 	/**
 	 * Socket服务初始化相关
@@ -60,30 +60,32 @@ class SocketServer implements InterfaceServer
 			}
 
 			//创建
-			if ( false === ($this->server = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) ) {
+			if ( false === ($this->serverSocket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) ) {
 				$this->triggerThrowException("socket_create() failed !!");
 			}
 
-			//检测是否端口之前未被回收，支持端口重复绑定
-			if ( false === socket_set_option( $this->server, SOL_SOCKET, SO_REUSEADDR, 1) ) {
+			//设置属性
+			if ( false === socket_set_option( $this->serverSocket, SOL_SOCKET, SO_REUSEADDR, 1) ) {
 				$this->triggerThrowException("socket_set_option() failed !!");
 			}
 
 			//绑定
-			if ( false === socket_bind($this->server, $this->serverIp, $this->serverPort)) {
+			if ( false === socket_bind($this->serverSocket, $this->serverIp, $this->serverPort)) {
 				$this->triggerThrowException("socket_bind() failed !!");
 			}
 
 			//监听
-			if ( false === socket_listen($this->server, 5)) {
+			if ( false === socket_listen($this->serverSocket, 5)) {
 				$this->triggerThrowException("socket_listen() failed !!");
 			}
 
 //			//设置非阻塞
-//			if ( $socketBlock == self::UNBLOCK && false == socket_set_nonblock($this->server)) {
+//			if ( $socketBlock == self::UNBLOCK && false == socket_set_nonblock($this->serverSocket)) {
 //				$this->triggerThrowException("socket_set_nonblock() failed !!");
 //			}
-			socket_set_nonblock($this->server);
+			socket_set_nonblock($this->serverSocket);
+
+
 
 		}catch (\Exception $e) {
 			printf("Server start false !! %s", $e->getMessage());
@@ -100,10 +102,21 @@ class SocketServer implements InterfaceServer
 		$this->serverStartPrompt();
 
 		do {
-			if ( false === ($newc = socket_accept($this->server)) ){
+			if(($newc = socket_accept($this->serverSocket)) !== false)
+			{
+				var_dump($newc);
+				echo "Client $newc has connected..\n";
+				$clients[] = $newc;
+			}
+
+			usleep(500000);
+		}while(true);
+
+		do {
+			if ( false !== ($newc = socket_accept($this->serverSocket)) ){
 				$this->triggerThrowException("socket_accept() failed !!");
 			}
-			$this->clients[] = $newc;
+			$this->clientSockets[] = $newc;
 
 			//客户端欢迎词
 			if( false === socket_write($newc, $this->clientWelcome()) ) {
@@ -139,7 +152,7 @@ class SocketServer implements InterfaceServer
 					case 'shutdown' : {
 						if (false !== socket_write($newc, "Shutdown Server !!\n")) {
 							socket_close($newc);
-							socket_close($this->server);
+							socket_close($this->serverSocket);
 							break 3;
 						}
 					}
@@ -147,9 +160,9 @@ class SocketServer implements InterfaceServer
 					//服务连接状态
 					case 'status' : {
 						$status = [
-							'server'	=> $this->server,
-							'clients'	=> $this->clients,
-							'server_status' 	=> stream_get_meta_data($this->server),
+							'server'	=> $this->serverSocket,
+							'clients'	=> $this->clientSockets,
+							'server_status' 	=> stream_get_meta_data($this->serverSocket),
 							'clients_status'	=> stream_get_meta_data($newc),
 						];
 
@@ -208,8 +221,8 @@ class SocketServer implements InterfaceServer
 	 * @throws \Exception
 	 */
 	private function triggerThrowException($errorMsg = '') {
-		if (is_resource($this->server)) {
-			$errorMsg = socket_strerror(socket_last_error($this->server));
+		if (is_resource($this->serverSocket)) {
+			$errorMsg = socket_strerror(socket_last_error($this->serverSocket));
 		}
 
 		throw new \Exception(sprintf('[Server Error]: %s', $errorMsg), -500);
@@ -221,9 +234,9 @@ class SocketServer implements InterfaceServer
 	 */
 	public function __destruct()
 	{
-
-		foreach (($this->clients + [$this->server]) as $fd) {
+		foreach (($this->clientSockets + [$this->serverSocket]) as $fd) {
 			if (is_resource($fd)) {
+				printf("destruct: release socket!");
 				socket_close($fd);
 			}
 		}

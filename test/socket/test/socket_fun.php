@@ -13,7 +13,7 @@ $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 //允许监听同样的地址
 socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
 
-socket_bind($socket, '0.0.0.0', 43215);
+socket_bind($socket, $listenIp, $listenPort);
 
 socket_listen($socket, 10);
 

@@ -37,4 +37,4 @@ Class Server {
 	}
 }
 
-(new Server())->run(new \MySockets\SocketServer(\MySockets\SocketServer::UNBLOCK));
+(new Server())->run(new \MySockets\SocketServer());

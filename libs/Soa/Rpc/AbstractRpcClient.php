@@ -19,4 +19,11 @@ Abstract class AbstractRpcClient implements InterfaceRpcClient {
 	 */
 	protected $clientResource;
 
+    /**
+     * 相关实现方法
+     *
+     * AbstractRpcClient constructor.
+     */
+	abstract public function __construct();
+
 }

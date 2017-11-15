@@ -1,5 +1,5 @@
 syntax = "proto3";
-package protobuf;
+package Soa.Rpc.Message;
 
 message Request {
     message Header {

@@ -12,12 +12,14 @@ namespace Soa\Rpc;
 
 interface InterfaceRpcClient
 {
-	/**
-	 * 连接RPC的服务
-	 *
-	 * @return mixed
-	 */
-	public function connect();
+    /**
+     * 连接RPC的服务
+     *
+     * @param $hostIp
+     * @param $hostPort
+     * @return mixed
+     */
+	public function connect($hostIp = '127.0.0.1', $hostPort = 43210);
 
 	/**
 	 *

@@ -1,0 +1,23 @@
+syntax = "proto3";
+package Protobuf.ES;
+
+message SearchRequest {
+    string  searchCategory = 1;
+    string  keywords = 2;
+
+    int32   page = 10;
+    int32   pageSize = 11;
+}
+
+message SearchResponse {
+    int32 status = 1;
+    SearchResult result = 2;
+    int32 page = 3;
+    int32 pageSize = 4;
+    int32 total = 5;
+
+    message SearchResult {
+        int32 id = 1;
+        string data = 2;
+    }
+}

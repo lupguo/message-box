@@ -14,23 +14,24 @@ use Soa\Rpc\AbstractRpcClient;
 
 class StreamsClient extends AbstractRpcClient {
 
-	public function __construct()
-	{
+    public function __construct(){}
 
-	}
+    public function connect($hostIp = '127.0.0.1', $hostPort = 43210)
+    {
+        // TODO: Implement connect() method.
+    }
 
-	public function connect()
-	{
-		// TODO: Implement connect() method.
-	}
+    /**
+     * @param $requestContent
+     * @return bool
+     */
+    public function sendRequest($requestContent)
+    {
 
-	public function sendRequest($requestContent)
-	{
-		// TODO: Implement sendRequest() method.
 
-	}
+    }
 
-	public function getResponse()
+    public function getResponse()
 	{
 		// TODO: Implement getResponse() method.
 	}

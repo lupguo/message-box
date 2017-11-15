@@ -11,11 +11,13 @@ namespace MySockets;
 
 class RequestBySocket
 {
+    /**
+     *
+     */
     public function run() {
-
         $sock = fsockopen("ssl://www.baidu.com", 443, $errno, $errstr, 120);
-        if (!$sock) die("$errstr ($errno)\n");
 
+        if (!$sock) die("$errstr ($errno)\n");
         $data = "foo=" . urlencode("Value for Foo") . "&bar=" . urlencode("Value for Bar");
 
         fwrite($sock, "GET / HTTP/1.1\r\n");
@@ -36,7 +38,7 @@ class RequestBySocket
         while (!feof($sock))
             $body .= fgets($sock, 4096);
 
-       
+
         fclose($sock);
 
     }

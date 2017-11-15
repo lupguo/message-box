@@ -100,12 +100,34 @@ class SoaRpcClient extends AbstractRpcClient
 		//transport init
 		$this->transport = new TcpStream($remoteIp, $port, $connectTimeout);
 
+		//autoload class for protobuf playload
+        spl_autoload_register([$this, 'autoloadClass'], true);
+
 		//message header init
 		$this->rpcRequestHeader = new Request_Header();
 
 		//message body init
 		$this->rpcRequest = new Request();
+
+		//unregister class for protobuf playload
+		spl_autoload_unregister([$this, 'autoloadClass']);
 	}
+
+    /**
+     * 针对Protobuf<Message\Playload>这块的自动加载
+     *
+     * @param $class
+     * @param string $ext
+     */
+    private function autoloadClass($class, $ext = '.php')
+    {
+        $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . $ext;
+        $protobufPath = sprintf("%s/%s/%s", dirname(__DIR__), 'Protobuf' , $logicalPathPsr4 );
+        if (file_exists($protobufPath)) {
+            include $protobufPath;
+        }
+
+    }
 
     /**
      * 初始化SOA RPC的请求头部

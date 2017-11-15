@@ -12,7 +12,7 @@ $listenPort = 43217;
 $local_socket = sprintf("tcp://%s:%d",$listenIp,$listenPort);
 $stream = stream_socket_server($local_socket, $errno, $errstr, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN);
 
-var_dump($local_socket, $stream, stream_get_meta_data($stream), stream_is_local($local_socket));
+var_dump($local_socket, $stream, stream_get_meta_data($stream));
 
 if (!$stream) {
     echo "$errstr($errno)\n";

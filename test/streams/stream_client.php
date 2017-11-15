@@ -11,8 +11,8 @@
 //stream_get_wrappers()
 
 //流包裹、传输方式、过滤器
-//var_dump(stream_get_wrappers(), stream_get_transports(), stream_get_filters());
-
+var_dump(stream_get_wrappers(), stream_get_transports(), stream_get_filters());
+exit;
 //上下文
 //stream_context_create();    //fopen, file(),file_get_contents()
 

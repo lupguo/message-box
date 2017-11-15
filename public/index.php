@@ -7,7 +7,7 @@
  */
 
 $autoloader = require '../vendor/autoload.php';
-$autoloader->addPsr4('', ['../src']);
+$autoloader->addPsr4('', ['../src', '../src/Rpc']);
 
 // test socket
 //$demoScript = new \MySockets\RequestBySocket();
@@ -25,7 +25,7 @@ $body = [
 
 try {
     $ip = '192.168.10.10';
-    $port = 43210;
+    $port = 43217;
     $soaRpc = new \Rpc\Client\SoaRpcClient($ip, $port,5);
     $soaRpc->initRequestHeader([
         "type"=> 1,

@@ -37,7 +37,7 @@ class TcpStream extends AbstractTcpTransport {
     	$this->resource = @stream_socket_client($remoteSocket, $errno, $errstr, $connectTimeout);
 
 		if ($this->resource === false) {
-			throw new TransportException(sprintf("STREAM SOCKET CLEIENT CREATED ERROR (%d): %s .", $errno, $errstr));
+			throw new TransportException(sprintf("STREAM SOCKET CLEIENT CREATED ERROR ON %s (%d): %s .", $remoteSocket, $errno, $errstr));
 		}
 	}
 }

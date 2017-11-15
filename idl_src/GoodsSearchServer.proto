@@ -1,8 +1,0 @@
-syntax = "proto3";
-import "./ESearch.proto";
-
-//package Protobuf.GoodsSearchServer;
-
-service GoodsSearchServer {
-    rpc Search(SearchRequest) returns (SearchResponse);
-}

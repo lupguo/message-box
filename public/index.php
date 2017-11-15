@@ -7,9 +7,12 @@
  */
 
 $autoloader = require '../vendor/autoload.php';
-$autoloader->addPsr4('', ['../php_out', '../libs']);
+$autoloader->addPsr4('', ['.']);
 
 // test socket
-$demoScript = new \MySockets\RequestBySocket();
-$demoScript->run();
+//$demoScript = new \MySockets\RequestBySocket();
+//$demoScript->run();
+
+//rpc客户端
+$streamClient = new \Rpc\Transport\Streams\TcpStream();
 

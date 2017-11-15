@@ -7,10 +7,10 @@
  * @since   2017/11/14 18:49
  */
 
-namespace Soa\Rpc;
+namespace Rpc\Transport;
 
 
-Abstract class AbstractRpcClient implements InterfaceRpcClient {
+Abstract class AbstractTcpTransport implements InterfaceTcpTransport {
 
 	/**
 	 * 客户端连接的资源对象

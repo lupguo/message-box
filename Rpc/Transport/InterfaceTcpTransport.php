@@ -7,10 +7,10 @@
  * @since   2017/11/14 16:53
  */
 
-namespace Soa\Rpc;
+namespace Rpc\Transport;
 
 
-interface InterfaceRpcClient
+interface InterfaceTcpTransport
 {
     /**
      * 连接RPC的服务

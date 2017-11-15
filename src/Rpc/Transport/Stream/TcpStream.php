@@ -15,13 +15,6 @@ use Rpc\Transport\AbstractTcpTransport;
 class TcpStream extends AbstractTcpTransport {
 
 	/**
-	 * stream 资源
-	 *
-	 * @var resource
-	 */
-	protected $resource;
-
-	/**
 	 * TcpStream constructor.
 	 *
 	 * @param string $remoteIp

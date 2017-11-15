@@ -12,21 +12,17 @@ namespace Rpc\Transport;
 
 interface InterfaceTcpTransport
 {
-	/**
-	 *
-	 * 发送TCP请求数据
-	 *
-	 * @param string $data
-	 * @return mixed
-	 */
-	public function sendRequest($data);
-
-	/**
-	 * 获取TCP响应数据
-	 *
-	 * @return mixed
-	 */
-	public function getResponse();
+    /**
+     * 基于TCP连接，写入数据到缓存区中
+     *
+     * @param string $data      TCP发送的数据
+     */
+    public function writeData($data);
+    
+    /**
+     * 基于TCP连接，从数据缓存区中读取数据
+     */
+    public function readData();
 
 
 }

@@ -9,18 +9,18 @@
 namespace Rpc\Server;
 
 
+use Message\Payload\Request;
 use Message\Payload\Response;
 use Message\Payload\Response_Header;
 use Rpc\Autoloader;
+use Rpc\Transport\AbstractTcpTransport;
 
-class StreamServerDemon
+class StreamServerDemon extends AbstractTcpTransport
 {
     /**
-     * 服务流资源
-     *
-     * @var resource
+     * @var 服务端流
      */
-    private $stream;
+    private $serverStream;
     
     /**
      * StreamServerDemon constructor.
@@ -34,8 +34,8 @@ class StreamServerDemon
         //stream socket listen
         $localSocket = 'tcp://192.168.10.10:43217';
         printf("LISTEN ON : [ %s ]\n", $localSocket);
-        $this->stream = stream_socket_server($localSocket, $errno, $errstr)
-            or die(sprintf("stream server create failed, %s", $errstr));
+        $this->serverStream = stream_socket_server($localSocket, $errno, $errstr)
+            or die(sprintf("STREAM SERVER CREATE FAILED, %s", $errstr));
     }
     
     /**
@@ -46,6 +46,47 @@ class StreamServerDemon
      * @param array  $body
      */
     public function start($status = 200, $message='', $body = []){
+        //client accept
+        while ($clientSocket = stream_socket_accept($this->serverStream, -1, $peer)) {
+            if ($clientSocket === false) {
+                die("CLIENT SOCKET ACCEPT ERROR !!");
+            }
+            //read request
+            printf("CLIENT FROM: [ %s ] \n", $peer);
+    
+            //set current r/w stream
+            $this->setResource($clientSocket);
+            $this->writeData($this->getResponseData($status, $message, $body));
+    
+            //close resource
+            $this->close($clientSocket);
+        }
+    }
+    
+    /**
+     * 打印用户的输入内容
+     *
+     */
+    public function dumpReceiveData() {
+        $rpcRequest = new Request();
+        $rpcRequest->mergeFromString($this->readData());
+        var_dump([
+           'header' => $rpcRequest->getHeader(),
+           'body'   => $rpcRequest->getBody(),
+        ]);
+    }
+    
+    /**
+     * 获取响应给客户端的数据
+     *
+     * @param int    $status
+     * @param string $message
+     * @param array  $body
+     *
+     * @return string
+     */
+    private function getResponseData($status = 200, $message='', $body = [])
+    {
         //response header
         $messageRespHeader = new Response_Header();
         $messageRespHeader
@@ -54,7 +95,7 @@ class StreamServerDemon
             ->setMId(1)
             ->setSuccess(1)
         ;
-        
+    
         //response body
         $body = is_array($body) ? $body : [$body];
         $body = json_encode($body);
@@ -62,25 +103,8 @@ class StreamServerDemon
         $messageResponse
             ->setHeader($messageRespHeader)
             ->setBody($body);
-        
+    
         //response data
-        $sendData = $messageResponse->serializeToString();
-        
-        while ($clientSocket = stream_socket_accept($this->stream, -1, $peer)) {
-            printf("CLIENT FROM: [ %s ] \n", $peer);
-    
-            //一次写入大于4k的响应，分次写入buffer
-            for ($written = 0; $written < strlen($sendData); $written += $fwrite) {
-                $fwrite = fwrite($clientSocket, substr($sendData, $written), 4096);
-                if ($fwrite === false) {
-                    die("SEND RESPONSE BODY ERROR .");
-                }
-            }
-            fclose ($clientSocket);
-        }
-    }
-    
-    public function dump() {
-    
+        return $messageResponse->serializeToString();
     }
 }

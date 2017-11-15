@@ -20,13 +20,6 @@ abstract class AbstractRpcClient
 	 */
 	protected $transport;
 
-    /**
-     * 传输的消息体
-     *
-     * @var
-     */
-	private $message;
-
 	/**
 	 * RpcClient constructor.
 	 *

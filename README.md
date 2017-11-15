@@ -5,18 +5,84 @@
 > gRPC: 谷歌出品的rpc解决方案，默认是依托于protobuf协议；
 
 ### 准备工作
-1. 安装protoc编译器：https://github.com/google/protobuf
-2. 进入到根目录，执行相关protoc文件的编译：
-   ```
-   protoc -I idl_src/ --php_out=./php_out search.proto
-   ```
-3. 配置web server: 
-    ```
-    # rpc protobuf
-    192.168.10.10  rpc-protobuf.net 
-    ```
-4. 配置vagrant的`Homestead.yaml`配置文件，支持vhost。
-5. 做好xdebug的相关调试
+
+#### 1、安装protoc编译器：https://github.com/google/protobuf
+
+#### 2. RPC目录结构说明：
+	- 客户端相关；
+	- 异常管控；
+	- Protobuf相关(Idl、Request、Response响应等)；
+	- 模拟RPC服务调试；
+	- 传输方式基于(Stream|Socket)等；
+	```
+	└── Rpc
+	    ├── Autoloader.php
+	    ├── Client								--------------- 1、客户端相关
+	    │   ├── AbstractRpcClient.php
+	    │   └── SoaRpcClient.php
+	    ├── Exceptions 							--------------- 2、异常相关
+	    │   ├── ClientException.php
+	    │   ├── MessageException.php
+	    │   ├── RpcException.php
+	    │   └── TransportException.php
+	    ├── Protobuf 							--------------- 3、Protobuf消息载体
+	    │   ├── GPBMetadata
+	    │   │   ├── Request.php
+	    │   │   └── Response.php
+	    │   ├── Idl
+	    │   │   ├── Request.proto
+	    │   │   └── Response.proto
+	    │   └── Message
+	    │       └── Payload
+	    ├── Server 								--------------- 4、模拟服务
+	    │   └── StreamServerDemon.php
+	    └── Transport							--------------- 5、传输方式(Stream|Socket)
+	        ├── AbstractTcpTransport.php
+	        ├── InterfaceTcpTransport.php
+	        └── Stream
+	            └── TcpStream.php
+	```
+#### 3. 执行相关protoc文件的编译（由于只用到到`Request.proto`和`Response.proto`，做了预编译，此步骤可以忽略）：
+```
+$ cd src/Rpc/Protobuf/
+$ protoc -I Idl/ --php_out=. Request.proto Response.proto
+```
+#### 4. 调试
+> 模拟起一个RPC服务端，提供数据接收和响应
+
+1. 启动`模拟的rpc server`: 
+```
+vagrant@homestead:~/www/open-platform/grpc-protobuf/public$ php server.php 
+LISTEN ON : [ tcp://192.168.10.10:43217 ]
+CLIENT FROM: [ 192.168.10.10:34924 ] 
+CLIENT FROM: [ 192.168.10.10:34928 ] 
+```
+2. 配置域名、请求后解析得到
+```
+# rpc protobuf
+192.168.10.10  rpc-protobuf.net 
+```
+3. web客户端环境配置好（基于vagrant的需要提前做好相关web的部署）
+4. 请求输出
+```
+/home/vagrant/www/open-platform/grpc-protobuf/public/index.php:49:
+array (size=2)
+  'header' => 
+    array (size=4)
+      'code' => int 200
+      'msg' => string 'hi, man' (length=7)
+      'mid' => string '1' (length=1)
+      'success' => boolean true
+  'body' => 
+    array (size=2)
+      'data' => 
+        array (size=3)
+          'id' => int 999
+          'username' => string 'terry' (length=5)
+          'email' => string 'tkstorm@163.com' (length=15)
+      'status' => int 200
+```
+
 
 ### 相关服务
 
@@ -28,4 +94,6 @@
 - 客户端执行：`telnet localhost 43210`；
 
 ### 待办
-- 需要把server端模拟出来，基于sock_stream()来实现，用于server端的接收调试；
+- 集成到Laravel框架中；
+- 增加Log部分；
+- 相关代码整理；

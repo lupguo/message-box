@@ -170,9 +170,9 @@ class SoaRpcClient extends AbstractRpcClient
      */
     public function call($method = '', $body = [], $server = '')
     {
-        $requestPack = $this->pack($method, $body, $server);
+        $requestData = $this->pack($method, $body, $server);
 
-        return $this->unpack($this->transport->sendRequest($requestPack));
+        return $this->unpack($this->transport->writeGetRead($requestData));
     }
 
     /**

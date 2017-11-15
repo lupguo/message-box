@@ -15,54 +15,112 @@ use Rpc\Exceptions\TransportException;
 Abstract class AbstractTcpTransport implements InterfaceTcpTransport {
 
 	/**
-	 * 客户端连接的资源对象 Stream|Socket
+	 * 连接的资源对象 Stream|Socket
 	 *
 	 * @var mixed
 	 */
-	protected $resource;
-
+	public $resource;
+    
+    /**
+     * 读的buffer
+     *
+     * @var integer
+     */
+	protected $readBuffer = 8196;
+    
+    /**
+     * 写的buffer
+     *
+     * @var integer
+     */
+	protected $writeBuffer = 4096;
+	
 	/**
-	 * 子类需要构建连接资源
-	 *
-	 * AbstractTcpTransport constructor.
+     * 子类需要构建连接资源
+     *
+     * AbstractTcpTransport constructor.
 	 */
 	abstract protected function __construct();
-
-	/**
-	 * 发送TCP的请求数据
-	 *
-	 * @param string $message 发送的数据
-	 * @param int $written 每次写入BUFF的字节数，当发送数据大于此数据，将拆分发送
-	 * @return bool|int
-	 * @throws TransportException
-	 */
-	public function sendRequest($message = '', $written = 4096)
+    
+    /**
+     * 设置当前操作流的资源
+     *
+     * @param $resource
+     *
+     * @return $this
+     */
+	public function setResource($resource) {
+	    $this->resource = $resource;
+	    
+	    return $this;
+    }
+	
+    /**
+     * 基于流写入数据
+     *
+     * @param string $data TCP发送的数据
+     *
+     * @return string
+     * @throws TransportException
+     */
+	public function writeData($data)
 	{
-		if (empty($message))
+        if ( !is_resource($this->resource) ) {
+            throw new TransportException("IN RPC TRANSPORT , WRITE RESOURCE IS UNAVAILABLE !!");
+        }
+        
+		if (empty($data))
 			throw new TransportException("EMPTY REQUEST BODY .");
 
-		for ($written = 0; $written < strlen($message); $written += $fwrite) {
-			$fwrite = fwrite($this->resource, substr($message, $written));
+		for ($written = 0; $written < strlen($data); $written += $fwrite) {
+			$fwrite = fwrite($this->resource, substr($data, $written), $this->writeBuffer);
 			if ($fwrite === false) {
 				throw new TransportException(sprintf("SEND REQUEST BODY ERROR ."));
 			}
 		}
-
-		return  $this->getResponse() ;
 	}
-
-	/**
-	 * 返回当前TCP响应的数据
-	 *
-	 * @return string
-	 */
-	public function getResponse()
+    
+    /**
+     * 从当前流中读取数据
+     *
+     * @return string
+     * @throws TransportException
+     */
+	public function readData()
 	{
-		$fread = '';
+	    if ( !is_resource($this->resource)) {
+	        throw new TransportException("IN RPC TRANSPORT , READ RESOURCE IS UNAVAILABLE !!");
+        }
+	    
+		$freadData = '';
 		while (!feof($this->resource)) {
-			$fread .= fread($this->resource, 4096);
+            $freadData .= fread($this->resource, $this->readBuffer);
 		}
-
-		return $fread;
+		
+		return $freadData;
 	}
+    
+    /**
+     * 写入数据到流中，并从流中读取响应数据
+     *
+     * @param $data
+     *
+     * @return string
+     */
+	public function writeGetRead($data) {
+	    $this->writeData($data);
+	    
+	    return $this->readData();
+    }
+    
+    /**
+     * 关闭当前资源
+     *
+     * @param $resource
+     *
+     * @return bool
+     */
+    public function close($resource) {
+	    return fclose($resource);
+    }
 }

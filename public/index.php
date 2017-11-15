@@ -14,5 +14,14 @@ $autoloader->addPsr4('', ['.']);
 //$demoScript->run();
 
 //rpc客户端
+
+$body = [
+    "type" => 1,
+    "platform" => 1,
+    "pageSize"	=> 20,
+    "pageNo"	=> 1,
+    "siteCode"	=> "GLB",
+];
+
 $streamClient = new \Rpc\Transport\Streams\TcpStream();
 

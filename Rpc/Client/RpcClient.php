@@ -10,8 +10,9 @@
 namespace Rpc;
 
 
-use Message\Playload\Request as MessageRequest;
-use Message\Playload\Response as MessageResponse;
+use Message\Playload\Request;
+use Message\Playload\Request_Header;
+use Message\Playload\Response;
 use Rpc\Transport\Stream\TcpStream;
 
 class RpcClient implements InterfaceWorker
@@ -22,6 +23,13 @@ class RpcClient implements InterfaceWorker
 	 */
 	public $transport;
 
+    /**
+     * 传输的消息体
+     *
+     * @var
+     */
+	private $message;
+
 	/**
 	 *
 	 * RpcClient constructor.
@@ -31,46 +39,59 @@ class RpcClient implements InterfaceWorker
 		$this->transport = new TcpStream();
 	}
 
-	/**
-	 * 发送RPC请求
-	 *
-	 * @param MessageRequest $messageRequest
-	 */
-	public function sendRequest(MessageRequest $messageRequest) {
+	public function sendRequest(Request $messageRequest) {
 
-		$data = $this->transport->sendRequest($messageRequest);
+		$message = $this->transport->sendRequest($messageRequest);
 
-		$response = new MessageResponse();
+		$response = $this->parseMessage($message);
 
 		return $this->getResponse();
 		return null;
 	}
 
-
-	/**
-	 * 获取PRC响应
-	 *
-	 * @param MessageResponse $response
-	 */
-	public function getResponse(MessageResponse $response) {
-
+    /**
+     * 返回解析后的消息解析消息
+     * 
+     * @param $message
+     * @return mixed
+     */
+	public function parseMessage($message) {
+        $respMessage = new Response();
+        return $respMessage->mergeFromString($message);
+        var_dump($respMessage->getBody(), json_decode($respMessage->getBody(), 1));
 	}
 
-	/**
-	 * 封包
-	 *
-	 * @param $data
-	 */
-	public function pack($data)
+	public function pack($body = [])
 	{
-		// TODO: Implement pack() method.
+        //header
+        $reqHeader	= new Request_Header();
+        $reqHeader
+            ->setTokenId('a7f1db0a670e3c3cabf81b62975f5891')
+            ->setVersion('1.0.0')
+            ->setService('com.globalegrow.spi.mpay.inter.PaySystemService')
+            ->setMethod('queryLoginfo')
+            ->setDomain('')
+            ->setMId('')
+            ->setType(1)
+            ->setUrl('')
+        ;
+
+        //body
+        $reqMessage = new Request();
+        $reqMessage
+            ->setHeader($reqHeader)
+            ->setBody($body)
+        ;
+        $reqMessage->setBody(json_encode($body));
+
+        //pack
+        $byteSize = $reqMessage->byteSize();
+
+        //serialize to string
+        $serString = $reqMessage->serializeToString();
+        $serJsonString = $reqMessage->serializeToJsonString();
 	}
 
-	/**
-	 * 解封
-	 *
-	 * @param $data
-	 */
 	public function unpack($data)
 	{
 		// TODO: Implement unpack() method.

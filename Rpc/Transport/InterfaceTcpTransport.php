@@ -25,10 +25,10 @@ interface InterfaceTcpTransport
 	 *
 	 * 发送RPC请求数据
 	 *
-	 * @param $requestContent
+	 * @param string $message
 	 * @return mixed
 	 */
-	public function sendRequest($requestContent);
+	public function sendRequest($message = '');
 
 	/**
 	 * 获取RPC响应数据

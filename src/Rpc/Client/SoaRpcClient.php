@@ -12,6 +12,8 @@ namespace Rpc\Client;
 
 use Message\Payload\Request;
 use Message\Payload\Request_Header;
+use Message\Payload\Response;
+use Message\Payload\Response_Header;
 use Rpc\Autoloader;
 use Rpc\Exceptions\MessageException;
 use Rpc\Transport\Stream\TcpStream;
@@ -89,6 +91,16 @@ class SoaRpcClient extends AbstractRpcClient
 	 * @var Request
 	 */
 	private $rpcRequest;
+    
+    /**
+     * @var Response_Header
+     */
+	private $rpcResponseHeader;
+    
+    /**
+     * @var Response
+     */
+	private $rpcResponse;
 
 	/**
 	 * SoaRpcClient constructor.
@@ -106,11 +118,13 @@ class SoaRpcClient extends AbstractRpcClient
         $autoloader = new Autoloader();
         $autoloader->register();
         
-		//message header init
+		//request message header|body init
 		$this->rpcRequestHeader = new Request_Header();
-
-		//message body init
 		$this->rpcRequest = new Request();
+		
+		//response message header|body init
+        $this->rpcResponseHeader = new Response_Header();
+        $this->rpcResponse = new Response();
 		
 		//autoloader unregister
         $autoloader->unRegister();
@@ -152,7 +166,7 @@ class SoaRpcClient extends AbstractRpcClient
      * @param string $method
      * @param array $body
      * @param string $server
-     * @return mixed|void
+     * @return \stdClass | false 成功返回对应的RPC调用接口
      */
     public function call($method = '', $body = [], $server = '')
     {
@@ -195,11 +209,20 @@ class SoaRpcClient extends AbstractRpcClient
 	protected function unpack($data = '')
 	{
 	    try{
-            $jsonString = $this->rpcRequest->mergeFromString($data);
-            
-            var_dump($jsonString);
-            exit;
-            return json_decode($jsonString) ?? new \ArrayObject();
+	        //unpack protobuf stream
+            $this->rpcResponse->mergeFromString($data);
+            $responseHeader = $this->rpcResponse->getHeader();
+            $responseBody = $this->rpcResponse->getBody();
+        
+            return [
+                'header' => [
+                    'code'    => $responseHeader->getCode(),
+                    'msg'     => $responseHeader->getMessage(),
+                    'mid'     => $responseHeader->getMId(),
+                    'success' => $responseHeader->getSuccess(),
+                ],
+                'body' => json_decode($responseBody, true) ?? false,
+            ];
         }catch (\Exception $e){
             //log error response data
             

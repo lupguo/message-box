@@ -60,7 +60,7 @@ Abstract class AbstractTcpTransport implements InterfaceTcpTransport {
 	{
 		$fread = '';
 		while (!feof($this->resource)) {
-			$fread .= fread($this->resource, 3);
+			$fread .= fread($this->resource, 4096);
 		}
 
 		return $fread;

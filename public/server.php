@@ -11,7 +11,7 @@ $autoloader->addPsr4('', ['../src']);
 
 $responseBody = [
     'data'   => [
-        'id'       => 1024,
+        'id'       => 999,
         'username' => 'terry',
         'email'    => 'tkstorm@163.com'
     ],

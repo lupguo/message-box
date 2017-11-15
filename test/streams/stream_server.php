@@ -22,7 +22,7 @@ if (!$stream) {
         //流相关的信息
         var_dump(stream_socket_get_name($conn,true), stream_socket_get_name($conn,false));
 
-        fwrite($conn, 'The local time is ' . date('n/j/Y g:i a') . "\n");
+        fwrite($conn, 'The local time is ' . date('n/j/Y g:i a'));
         fclose($conn);
     }
     fclose($stream);

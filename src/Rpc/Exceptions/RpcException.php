@@ -10,7 +10,14 @@
 namespace Rpc\Exceptions;
 
 
+use Throwable;
+
 class RpcException extends \Exception
 {
-
+    public function __construct($message = "", $code = 0,
+        Throwable $previous = null
+    ) {
+        parent::__construct(sprintf("SOA RPC RUN AN ERROR !! %s", $message), $code, $previous);
+    }
+    
 }

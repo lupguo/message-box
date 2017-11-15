@@ -1,5 +1,5 @@
 syntax = "proto3";
-package message.playload;
+package message.payload;
 
 message Response {
     message Header {

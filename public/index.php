@@ -7,7 +7,7 @@
  */
 
 $autoloader = require '../vendor/autoload.php';
-$autoloader->addPsr4('', ['../src', '../src/Rpc']);
+$autoloader->addPsr4('', ['../src']);
 
 // test socket
 //$demoScript = new \MySockets\RequestBySocket();
@@ -48,8 +48,15 @@ try {
 
     var_dump($return);
 
-}catch (\Rpc\Exceptions\RpcException $e) {
-    var_dump($e->getMessage());
+}catch (Exception $e) {
+    var_dump($e);
+    
+    if ($e instanceof \Rpc\Exceptions\RpcException) {
+        var_dump($e->getMessage());
+    }else{
+        var_dump($e->getMessage());
+    }
+
 //    var_dump($e, $e->getMessage());
 }
 

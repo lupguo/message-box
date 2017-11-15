@@ -10,8 +10,10 @@
 namespace Rpc\Client;
 
 
-use Message\Playload\Request;
-use Message\Playload\Request_Header;
+use Message\Payload\Request;
+use Message\Payload\Request_Header;
+use Rpc\Autoloader;
+use Rpc\Exceptions\MessageException;
 use Rpc\Transport\Stream\TcpStream;
 
 class SoaRpcClient extends AbstractRpcClient
@@ -100,34 +102,19 @@ class SoaRpcClient extends AbstractRpcClient
 		//transport init
 		$this->transport = new TcpStream($remoteIp, $port, $connectTimeout);
 
-		//autoload class for protobuf playload
-        spl_autoload_register([$this, 'autoloadClass'], true);
-
+		//autoloader
+        $autoloader = new Autoloader();
+        $autoloader->register();
+        
 		//message header init
 		$this->rpcRequestHeader = new Request_Header();
 
 		//message body init
 		$this->rpcRequest = new Request();
-
-		//unregister class for protobuf playload
-		spl_autoload_unregister([$this, 'autoloadClass']);
+		
+		//autoloader unregister
+        $autoloader->unRegister();
 	}
-
-    /**
-     * 针对Protobuf<Message\Playload>这块的自动加载
-     *
-     * @param $class
-     * @param string $ext
-     */
-    private function autoloadClass($class, $ext = '.php')
-    {
-        $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . $ext;
-        $protobufPath = sprintf("%s/%s/%s", dirname(__DIR__), 'Protobuf' , $logicalPathPsr4 );
-        if (file_exists($protobufPath)) {
-            include $protobufPath;
-        }
-
-    }
 
     /**
      * 初始化SOA RPC的请求头部
@@ -196,18 +183,28 @@ class SoaRpcClient extends AbstractRpcClient
 		//patch message
 		return $this->rpcRequest->serializeToString();
 	}
-
+    
     /**
-	 * SOA服务的相关数据基于Protobuf进行数据解封
-	 *
-	 * @param string $data
-	 * @return mixed
-	 */
+     * SOA服务的相关数据基于Protobuf进行数据解封
+     *
+     * @param string $data
+     *
+     * @return \ArrayObject|mixed
+     * @throws MessageException
+     */
 	protected function unpack($data = '')
 	{
-		$jsonString = $this->rpcRequest->mergeFromString($data);
-
-        return json_decode($jsonString) ?? new \ArrayObject();
+	    try{
+            $jsonString = $this->rpcRequest->mergeFromString($data);
+            
+            var_dump($jsonString);
+            exit;
+            return json_decode($jsonString) ?? new \ArrayObject();
+        }catch (\Exception $e){
+            //log error response data
+            
+	        throw new MessageException(sprintf('%s. %s', $e->getMessage(), $data));
+        }
 	}
 
 }

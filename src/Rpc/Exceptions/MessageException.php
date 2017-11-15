@@ -10,6 +10,8 @@
 namespace Rpc\Exceptions;
 
 
+use Throwable;
+
 class MessageException extends RpcException
 {
 

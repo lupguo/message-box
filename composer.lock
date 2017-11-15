@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "google/protobuf",
-            "version": "v3.4.1",
+            "version": "v3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/protobuf.git",
-                "reference": "b04e5cba356212e4e8c66c61bbe0c3a20537c5b9"
+                "reference": "2761122b810fe8861004ae785cc3ab39f384d342"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/google/protobuf/b04e5cba356212e4e8c66c61bbe0c3a20537c5b9.zip",
-                "reference": "b04e5cba356212e4e8c66c61bbe0c3a20537c5b9",
+                "url": "https://files.phpcomposer.com/files/google/protobuf/2761122b810fe8861004ae785cc3ab39f384d342.zip",
+                "reference": "2761122b810fe8861004ae785cc3ab39f384d342",
                 "shasum": ""
             },
             "require": {
@@ -45,7 +45,7 @@
             "keywords": [
                 "proto"
             ],
-            "time": "2017-09-14T19:24:28+00:00"
+            "time": "2017-11-13T18:47:29+00:00"
         }
     ],
     "packages-dev": [],

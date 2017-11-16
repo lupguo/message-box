@@ -44,9 +44,10 @@ try {
     $soaRpc = new \Rpc\Client\SoaRpcClient($ip, $port,5);
     $soaRpc->initRequestHeader($header);
 
-    $method = 'queryLoginfo';
-    $soaServer = "com.globalegrow.spi.mpay.inter.PaySystemService";
-    $return = $soaRpc->call('queryLoginfo', $body, $soaServer);
+    //订单SOA接口调试
+    $method = 'orderInfoList';
+    $soaServer = "com.globalegrow.spi.morder.common.inter.OrderQueryService";
+    $return = $soaRpc->call($method, $body, $soaServer);
 
     var_dump($return);
 

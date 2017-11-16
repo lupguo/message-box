@@ -10,9 +10,13 @@
 namespace Rpc\Transport;
 
 
+use Message\Payload\Response;
+use Rpc\Client\SoaRpcTrait;
 use Rpc\Exceptions\TransportException;
 
 Abstract class AbstractTcpTransport implements InterfaceTcpTransport {
+
+    use SoaRpcTrait;
 
 	/**
 	 * 连接的资源对象 Stream|Socket
@@ -91,14 +95,36 @@ Abstract class AbstractTcpTransport implements InterfaceTcpTransport {
 	    if ( !is_resource($this->resource)) {
 	        throw new TransportException("IN RPC TRANSPORT , READ RESOURCE IS UNAVAILABLE !!");
         }
-	    
+
+        //origin
 		$freadData = '';
 		while (!feof($this->resource)) {
             $freadData .= fread($this->resource, $this->readBuffer);
 		}
-		
+
 		return $freadData;
-	}
+
+        //just for soa data read handler
+//        $freadData = $this->readSoaData($this->resource);
+
+        $freadData = stream_get_contents($this->resource, 8196);
+
+        $rpcResponse = new Response();
+        $rs = $rpcResponse->mergeFromString($freadData);
+
+	    $this->readSoaData($this->resource);
+
+
+	    //origin
+//		$freadData = '';
+//		while (!feof($this->resource)) {
+//            $freadData .= fread($this->resource, $this->readBuffer);
+//		}
+
+        $this->close($this->resource);
+
+        return $freadData;
+    }
     
     /**
      * 写入数据到流中，并从流中读取响应数据
@@ -108,6 +134,7 @@ Abstract class AbstractTcpTransport implements InterfaceTcpTransport {
      * @return string
      */
 	public function writeGetRead($data) {
+
 	    $this->writeData($data);
 	    
 	    return $this->readData();

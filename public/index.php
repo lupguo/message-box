@@ -44,9 +44,10 @@ try {
         "siteCode" => "GLB"
     ];
 
-    $method = 'queryLoginfo';
-    $soaServer = "com.globalegrow.spi.mpay.inter.PaySystemService";
-    $return = $soaRpc->call('queryLoginfo', $body, $soaServer);
+
+    $method = 'orderInfoList';
+    $soaServer = "com.globalegrow.spi.morder.common.inter.OrderQueryService";
+    $return = $soaRpc->call($method, $body, $soaServer);
 
     var_dump($return);
 

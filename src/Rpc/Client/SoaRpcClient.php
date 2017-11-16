@@ -1,6 +1,6 @@
 <?php
 /**
- * Your file description.
+ * Soa的RPC调用客户端
  *
  * @author  Terry (psr100)
  * @date    2017/11/15
@@ -20,115 +20,117 @@ use Rpc\Transport\Stream\TcpStream;
 
 class SoaRpcClient extends AbstractRpcClient
 {
-	/**
-	 * Soa服务
-	 *
-	 * @var string
-	 */
-	private $server;
+    use SoaRpcTrait;
 
-	/**
-	 * SOA服务接口
-	 *
-	 * @var string
-	 */
-	private $method;
+    /**
+     * Soa服务
+     *
+     * @var string
+     */
+    private $server;
 
-	/**
-	 * 接口版本
-	 *
-	 * @var string
-	 */
-	private $version;
+    /**
+     * SOA服务接口
+     *
+     * @var string
+     */
+    private $method;
 
-	/**
-	 * rpc请求类型 1：为数据 2：心跳
-	 *
-	 * @var int
-	 */
-	private $type = 1;
+    /**
+     * 接口版本
+     *
+     * @var string
+     */
+    private $version;
 
-	/**
-	 * 接口TokenID
-	 *
-	 * @var string
-	 */
-	private $tokenId;
+    /**
+     * rpc请求类型 1：为数据 2：心跳
+     *
+     * @var int
+     */
+    private $type = 1;
 
-	/**
-	 * 站点编码
-	 *
-	 * @var string
-	 */
-	private $siteCode;
+    /**
+     * 接口TokenID
+     *
+     * @var string
+     */
+    private $tokenId;
 
-	/**
-	 * 业务ID
-	 *
-	 * @var string
-	 */
-	private $mid;
+    /**
+     * 站点编码
+     *
+     * @var string
+     */
+    private $siteCode;
 
-	/**
-	 * 服务域
-	 *
-	 * @var string
-	 */
-	private $domain = '';
+    /**
+     * 业务ID
+     *
+     * @var string
+     */
+    private $mid;
 
-	/**
-	 *
-	 * @var string
-	 */
-	private $url = '';
+    /**
+     * 服务域
+     *
+     * @var string
+     */
+    private $domain = '';
 
-	/**
-	 * @var Request_Header
-	 */
-	private $rpcRequestHeader;
+    /**
+     *
+     * @var string
+     */
+    private $url = '';
 
-	/**
-	 * @var Request
-	 */
-	private $rpcRequest;
-    
+    /**
+     * @var Request_Header
+     */
+    private $rpcRequestHeader;
+
+    /**
+     * @var Request
+     */
+    private $rpcRequest;
+
     /**
      * @var Response_Header
      */
-	private $rpcResponseHeader;
-    
+    private $rpcResponseHeader;
+
     /**
      * @var Response
      */
-	private $rpcResponse;
+    private $rpcResponse;
 
-	/**
-	 * SoaRpcClient constructor.
-	 *
-	 * @param string $remoteIp
-	 * @param int $port
-	 * @param int $connectTimeout
-	 */
-	public function __construct($remoteIp , $port , $connectTimeout)
-	{
-		//transport init
-		$this->transport = new TcpStream($remoteIp, $port, $connectTimeout);
+    /**
+     * SoaRpcClient constructor.
+     *
+     * @param string $remoteIp
+     * @param int $port
+     * @param int $connectTimeout
+     */
+    public function __construct($remoteIp , $port , $connectTimeout)
+    {
+        //transport init
+        $this->transport = new TcpStream($remoteIp, $port, $connectTimeout);
 
-		//autoloader
+        //autoloader
         $autoloader = new Autoloader();
         $autoloader->register();
-        
-		//request message header|body init
-		$this->rpcRequestHeader = new Request_Header();
-		$this->rpcRequest = new Request();
-		
-		//response message header|body init
+
+        //request message header|body init
+        $this->rpcRequestHeader = new Request_Header();
+        $this->rpcRequest = new Request();
+
+        //response message header|body init
         $this->rpcResponseHeader = new Response_Header();
         $this->rpcResponse = new Response();
-		
-		//autoloader unregister
+
+        //autoloader unregister
         $autoloader->unRegister();
-	}
+    }
 
     /**
      * 初始化SOA RPC的请求头部
@@ -136,8 +138,8 @@ class SoaRpcClient extends AbstractRpcClient
      * @param array $requestHeader
      * @return $this
      */
-	public function initRequestHeader($requestHeader = [])
-	{
+    public function initRequestHeader($requestHeader = [])
+    {
 
         list($this->tokenId, $this->version, $this->type, $this->mid, $this->domain, $this->url) = [
             isset($requestHeader['tokenId']) ? $requestHeader['tokenId'] : $this->tokenId,
@@ -148,17 +150,17 @@ class SoaRpcClient extends AbstractRpcClient
             isset($requestHeader['url']) ? $requestHeader['url'] : $this->url,
         ];
 
-		$this->rpcRequestHeader
-			->setTokenId($this->tokenId)
-			->setVersion($this->version)
-			->setDomain($this->domain)
-			->setMId($this->mid)
-			->setType($this->type)
-			->setUrl($this->url)
-		;
+        $this->rpcRequestHeader
+            ->setTokenId($this->tokenId)
+            ->setVersion($this->version)
+            ->setDomain($this->domain)
+            ->setMId($this->mid)
+            ->setType($this->type)
+            ->setUrl($this->url)
+        ;
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * 调取SOA服务
@@ -176,28 +178,33 @@ class SoaRpcClient extends AbstractRpcClient
     }
 
     /**
-	 * SOA服务的相关数据基于Protobuf进行数据封包
-	 *
-	 * @param string $method
-	 * @param array $body
+     * SOA服务的相关数据基于Protobuf进行数据封包
+     *
+     * @param string $method
+     * @param array $body
      * @param string $server
-	 * @return string
-	 */
-	protected function pack($method = '', $body = [], $server = '')
-	{
-		//change request header
-		$this->rpcRequestHeader
-			->setService($server)
-			->setMethod($method);
+     * @return string
+     */
+    protected function pack($method = '', $body = [], $server = '')
+    {
+        //change request header
+        $this->rpcRequestHeader
+            ->setService($server)
+            ->setMethod($method);
 
-		//fill body
-		$bodyString = is_array($body) ? json_encode($body) : json_encode([$body]);
-		$this->rpcRequest->setHeader($this->rpcRequestHeader)->setBody($bodyString);
+        //fill body
+        $bodyString = is_array($body) ? json_encode($body) : json_encode([$body]);
+        $this->rpcRequest->setHeader($this->rpcRequestHeader)->setBody($bodyString);
 
-		//patch message
-		return $this->rpcRequest->serializeToString();
+        //patch message
+        $protobufRawString = $this->rpcRequest->serializeToString();
+		return
+            TRANSPORT_TYPE == 'OBS' ?
+                $this->beforeSendData($protobufRawString) : //obs patch (后续需要fix掉的)
+                $protobufRawString
+            ;
 	}
-    
+
     /**
      * SOA服务的相关数据基于Protobuf进行数据解封
      *
@@ -206,14 +213,18 @@ class SoaRpcClient extends AbstractRpcClient
      * @return \ArrayObject|mixed
      * @throws MessageException
      */
-	protected function unpack($data = '')
-	{
-	    try{
-	        //unpack protobuf stream
+    protected function unpack($data = '')
+    {
+        try{
+            if (empty($data)) {
+                throw new \Exception('MESSAGE TO UNPACK IS EMPTY !!');
+            }
+
+            //unpack protobuf stream
             $this->rpcResponse->mergeFromString($data);
             $responseHeader = $this->rpcResponse->getHeader();
             $responseBody = $this->rpcResponse->getBody();
-        
+
             return [
                 'header' => [
                     'code'    => $responseHeader->getCode(),
@@ -225,9 +236,9 @@ class SoaRpcClient extends AbstractRpcClient
             ];
         }catch (\Exception $e){
             //log error response data
-            
-	        throw new MessageException(sprintf('%s. %s', $e->getMessage(), $data));
+
+            throw new MessageException(sprintf('%s %s', $e->getMessage(), $data));
         }
-	}
+    }
 
 }

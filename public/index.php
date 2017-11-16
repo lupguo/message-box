@@ -9,6 +9,8 @@
 $autoloader = require '../vendor/autoload.php';
 $autoloader->addPsr4('', ['../src']);
 
+define('TRANSPORT_TYPE', 'NEW');
+
 // test socket
 //$demoScript = new \MySockets\RequestBySocket();
 //$demoScript->run();

@@ -22,7 +22,7 @@ class TcpStream extends AbstractTcpTransport {
 	 * @param int $connectTimeout
 	 * @throws TransportException
 	 */
-	public function __construct($remoteIp = '127.0.0.1', $port = 43210, $connectTimeout = 5)
+	public function __construct($remoteIp = '127.0.0.1', $port = 43210, $connectTimeout = 3)
 	{
     	$remoteSocket = sprintf("tcp://%s:%d", $remoteIp, $port);
 

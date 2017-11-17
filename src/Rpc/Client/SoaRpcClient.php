@@ -172,9 +172,11 @@ class SoaRpcClient extends AbstractRpcClient
      */
     public function call($method = '', $body = [], $server = '')
     {
-        $data = $this->pack($method, $body, $server);
+        $reqPackedData = $this->pack($method, $body, $server);
 
-        return $this->unpack($this->transport->writeGetRead($data));
+        $respPackedData = $this->transport->writeGetRead($reqPackedData);
+
+        return $this->unpack($respPackedData);
     }
 
     /**
@@ -199,12 +201,27 @@ class SoaRpcClient extends AbstractRpcClient
         //patch message
         $protobufRawString = $this->rpcRequest->serializeToString();
 
+//        $this->testRequest($protobufRawString);
+
         //obs handle
         return TRANSPORT_TYPE == 'OBS' ?
                 $this->getByte($this->rpcRequest->byteSize()). $protobufRawString : //obs patch (后续需要fix掉的)
                 $protobufRawString
             ;
 	}
+
+	public function testRequest($data){
+        $request = new Request();
+        $request->mergeFromString($data);
+        var_dump($request->getBody(), $request->getHeader());
+        exit;
+    }
+
+    public function testResponse($data) {
+	    $response = new Response();
+	    $response->mergeFromString($data);
+	    var_dump($response->getBody(),$response->getHeader());
+    }
 
     /**
      * obs的获取二进制字符串前面加上其长度算法字节
@@ -244,9 +261,7 @@ class SoaRpcClient extends AbstractRpcClient
 
             //unpack protobuf stream
             $rpcResponse = new Response();
-            $rs = $rpcResponse->mergeFromString($data);
-            $rs->getHeader();
-            exit;
+            $rpcResponse->mergeFromString($data);
             $responseHeader = $this->rpcResponse->getHeader();
             $responseBody = $this->rpcResponse->getBody();
 

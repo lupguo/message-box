@@ -96,34 +96,24 @@ Abstract class AbstractTcpTransport implements InterfaceTcpTransport {
 	        throw new TransportException("IN RPC TRANSPORT , READ RESOURCE IS UNAVAILABLE !!");
         }
 
-        //origin
-		$freadData = '';
-		while (!feof($this->resource)) {
-            $freadData .= fread($this->resource, $this->readBuffer);
-		}
+        //obs soa stream read
+        $soaRead = $this->readSoaData($this->resource);
+	    return $soaRead;
 
-		return $freadData;
-
-        //just for soa data read handler
-//        $freadData = $this->readSoaData($this->resource);
-
-        $freadData = stream_get_contents($this->resource, 8196);
-
-        $rpcResponse = new Response();
-        $rs = $rpcResponse->mergeFromString($freadData);
-
-	    $this->readSoaData($this->resource);
-
-
-	    //origin
+//        //fread origin
 //		$freadData = '';
 //		while (!feof($this->resource)) {
 //            $freadData .= fread($this->resource, $this->readBuffer);
 //		}
+//		return $freadData;
+
+        //stream read
+        $streamReadData = stream_get_contents($this->resource);
 
         $this->close($this->resource);
 
-        return $freadData;
+        return $streamReadData;
+
     }
     
     /**

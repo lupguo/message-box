@@ -13,9 +13,9 @@ use Message\Payload\Request;
 use Message\Payload\Response;
 use Message\Payload\Response_Header;
 use Rpc\Autoloader;
-use Rpc\Transport\AbstractTcpTransport;
+use Rpc\Transport\Stream\StreamTransport;
 
-class StreamServerDemon extends AbstractTcpTransport
+class StreamServerDemon extends StreamTransport
 {
     /**
      * @var 服务端流

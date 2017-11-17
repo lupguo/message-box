@@ -12,14 +12,14 @@ namespace Rpc\Client;
 use Rpc\Message\InterfaceMessageBox;
 use Rpc\Message\SoaMessageBox;
 use Rpc\Transport\InterfaceTransport;
-use Rpc\Transport\Stream\StreamTranstport;
+use Rpc\Transport\Stream\StreamTransport;
 
 class RpcClient
 {
     /**
      * 传输方式
      *
-     * @var StreamTranstport
+     * @var StreamTransport
      */
     private $transport;
 

@@ -42,9 +42,9 @@ try {
     $ip = '10.40.2.106';
     $port = 2087;
 
-    $transport = new \Rpc\Transport\Stream\StreamTranstport($ip, $port, 3);
-    $mesageBox = new \Rpc\Message\SoaMessageBox($header);
-    $rpcClient = new \Rpc\Client\RpcClient($transport, $mesageBox);
+    $transport = new \Rpc\Transport\Stream\StreamTransport($ip, $port, 3);
+    $messageBox = new \Rpc\Message\SoaMessageBox($header);
+    $rpcClient = new \Rpc\Client\RpcClient($transport, $messageBox);
 
     //订单SOA接口调试
     $method = 'orderInfoList';
@@ -55,10 +55,8 @@ try {
 
 }catch (Exception $e) {
     if ($e instanceof \Rpc\Exceptions\RpcException) {
-        var_dump($e->getMessage());
+        var_dump('RPC Exception: '.$e->getMessage());
     }else{
         var_dump($e->getMessage());
     }
-
-//    var_dump($e, $e->getMessage());
 }

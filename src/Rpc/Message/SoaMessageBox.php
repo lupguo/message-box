@@ -75,6 +75,12 @@ class SoaMessageBox implements InterfaceMessageBox
      * @var string
      */
     private $domain = '';
+    
+    /**
+     *
+     * @var string
+     */
+    private $url = '';
 
     /**
      * @var Request_Header
@@ -103,10 +109,10 @@ class SoaMessageBox implements InterfaceMessageBox
      */
     public function __construct($requestHeader = [])
     {
-        //初始化probobuf
+        //初始化protobuf
         $this->initPbf();
 
-        //初始化probobuf的请求头
+        //初始化protobuf的请求头
         $this->initPbfRequestHeader($requestHeader);
     }
 
@@ -181,9 +187,8 @@ class SoaMessageBox implements InterfaceMessageBox
 
         //patch message
         $protobufRawString = $this->rpcRequest->serializeToString();
-
-        //add pack length
-        return $this->encodeLength($this->rpcRequest->byteSize()). $protobufRawString ;
+        
+        return $protobufRawString;
     }
 
     /**
@@ -219,28 +224,5 @@ class SoaMessageBox implements InterfaceMessageBox
             //log error response data
             throw new MessageException(sprintf('%s %s', $e->getMessage(), $data));
         }
-    }
-
-    /**
-     * obs的获取二进制字符串前面加上其长度算法字节
-     *
-     * @param string $value
-     * @return string
-     */
-    private function encodeLength($value)
-    {
-        $dataLengthByte = '';
-        while (true){
-            if (($value & ~0x7F) == 0) {
-                $dataLengthByte .= pack('c', $value);
-                break;
-            } else {
-                $b = (($value & 0x7F) | 0x80);
-                $dataLengthByte .= pack('c', $b);
-                $value = $value >> 7;
-            }
-        }
-
-        return $dataLengthByte;
     }
 }

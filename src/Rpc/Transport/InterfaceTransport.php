@@ -10,7 +10,7 @@
 namespace Rpc\Transport;
 
 
-interface InterfaceTcpTransport
+interface InterfaceTransport
 {
     /**
      * 基于TCP连接，写入数据到缓存区中

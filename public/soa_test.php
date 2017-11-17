@@ -41,19 +41,19 @@ $body = [
 try {
     $ip = '10.40.2.106';
     $port = 2087;
-    $soaRpc = new \Rpc\Client\SoaRpcClient($ip, $port,5);
-    $soaRpc->initRequestHeader($header);
+
+    $transport = new \Rpc\Transport\Stream\StreamTranstport($ip, $port, 3);
+    $mesageBox = new \Rpc\Message\SoaMessageBox($header);
+    $rpcClient = new \Rpc\Client\RpcClient($transport, $mesageBox);
 
     //订单SOA接口调试
     $method = 'orderInfoList';
-    $soaServer = "com.globalegrow.spi.morder.common.inter.OrderQueryService";
-    $return = $soaRpc->call($method, $body, $soaServer);
+    $server = "com.globalegrow.spi.morder.common.inter.OrderQueryService";
+    $return = $rpcClient->call($method, $body, $server);
 
-    var_dump($return);
+    echo json_encode($return);
 
 }catch (Exception $e) {
-    var_dump($e);
-
     if ($e instanceof \Rpc\Exceptions\RpcException) {
         var_dump($e->getMessage());
     }else{

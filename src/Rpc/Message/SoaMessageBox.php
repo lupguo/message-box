@@ -1,13 +1,13 @@
 <?php
 /**
- * Soa的RPC调用客户端
+ * SOA - 网站对接使用的MessageBox
  *
  * @author  Terry (psr100)
- * @date    2017/11/15
- * @since   2017/11/15 13:48
+ * @date    2017/11/17
+ * @since   2017/11/17 16:31
  */
 
-namespace Rpc\Client;
+namespace Rpc\Message;
 
 
 use Message\Payload\Request;
@@ -16,11 +16,9 @@ use Message\Payload\Response;
 use Message\Payload\Response_Header;
 use Rpc\Autoloader;
 use Rpc\Exceptions\MessageException;
-use Rpc\Transport\Stream\TcpStream;
 
-class SoaRpcClient extends AbstractRpcClient
+class SoaMessageBox implements InterfaceMessageBox
 {
-    use SoaRpcTrait;
 
     /**
      * Soa服务
@@ -79,12 +77,6 @@ class SoaRpcClient extends AbstractRpcClient
     private $domain = '';
 
     /**
-     *
-     * @var string
-     */
-    private $url = '';
-
-    /**
      * @var Request_Header
      */
     private $rpcRequestHeader;
@@ -105,17 +97,24 @@ class SoaRpcClient extends AbstractRpcClient
     private $rpcResponse;
 
     /**
-     * SoaRpcClient constructor.
+     * SoaMessage constructor.
      *
-     * @param string $remoteIp
-     * @param int $port
-     * @param int $connectTimeout
+     * @param array $requestHeader
      */
-    public function __construct($remoteIp , $port , $connectTimeout)
+    public function __construct($requestHeader = [])
     {
-        //transport init
-        $this->transport = new TcpStream($remoteIp, $port, $connectTimeout);
+        //初始化probobuf
+        $this->initPbf();
 
+        //初始化probobuf的请求头
+        $this->initPbfRequestHeader($requestHeader);
+    }
+
+    /**
+     * 利用Protobuf压缩传输协议相关初始化
+     *
+     */
+    private function initPbf() {
         //autoloader
         $autoloader = new Autoloader();
         $autoloader->register();
@@ -138,7 +137,7 @@ class SoaRpcClient extends AbstractRpcClient
      * @param array $requestHeader
      * @return $this
      */
-    public function initRequestHeader($requestHeader = [])
+    private function initPbfRequestHeader($requestHeader = [])
     {
 
         list($this->tokenId, $this->version, $this->type, $this->mid, $this->domain, $this->url) = [
@@ -158,26 +157,8 @@ class SoaRpcClient extends AbstractRpcClient
             ->setType($this->type)
             ->setUrl($this->url)
         ;
-
-        return $this;
     }
 
-    /**
-     * 调取SOA服务
-     *
-     * @param string $method
-     * @param array $body
-     * @param string $server
-     * @return \stdClass | false 成功返回对应的RPC调用接口
-     */
-    public function call($method = '', $body = [], $server = '')
-    {
-        $reqPackedData = $this->pack($method, $body, $server);
-
-        $respPackedData = $this->transport->writeGetRead($reqPackedData);
-
-        return $this->unpack($respPackedData);
-    }
 
     /**
      * SOA服务的相关数据基于Protobuf进行数据封包
@@ -185,9 +166,9 @@ class SoaRpcClient extends AbstractRpcClient
      * @param string $method
      * @param array $body
      * @param string $server
-     * @return string
+     * @return string length内容+protobuf处理过后的soa服务的消息体(已转成对应的协议字符内容)
      */
-    protected function pack($method = '', $body = [], $server = '')
+    public function pack($method = '', $body = [], $server = '')
     {
         //change request header
         $this->rpcRequestHeader
@@ -201,47 +182,8 @@ class SoaRpcClient extends AbstractRpcClient
         //patch message
         $protobufRawString = $this->rpcRequest->serializeToString();
 
-//        $this->testRequest($protobufRawString);
-
-        //obs handle
-        return TRANSPORT_TYPE == 'OBS' ?
-                $this->getByte($this->rpcRequest->byteSize()). $protobufRawString : //obs patch (后续需要fix掉的)
-                $protobufRawString
-            ;
-	}
-
-	public function testRequest($data){
-        $request = new Request();
-        $request->mergeFromString($data);
-        var_dump($request->getBody(), $request->getHeader());
-        exit;
-    }
-
-    public function testResponse($data) {
-	    $response = new Response();
-	    $response->mergeFromString($data);
-	    var_dump($response->getBody(),$response->getHeader());
-    }
-
-    /**
-     * obs的获取二进制字符串前面加上其长度算法字节
-     *
-     * @param string $value
-     * @return string
-     */
-    protected function getByte($value)
-    {
-        $dataLengthByte = '';
-        while (true){
-            if (($value & ~0x7F) == 0) {
-                $dataLengthByte .= pack('c', $value);
-                return $dataLengthByte;
-            } else {
-                $b = (($value & 0x7F) | 0x80);
-                $dataLengthByte .= pack('c', $b);
-                $value = $value >> 7;
-            }
-        }
+        //add pack length
+        return $this->encodeLength($this->rpcRequest->byteSize()). $protobufRawString ;
     }
 
     /**
@@ -252,7 +194,7 @@ class SoaRpcClient extends AbstractRpcClient
      * @return \ArrayObject|mixed
      * @throws MessageException
      */
-    protected function unpack($data = '')
+    public function unpack($data = '')
     {
         try{
             if (empty($data)) {
@@ -260,8 +202,7 @@ class SoaRpcClient extends AbstractRpcClient
             }
 
             //unpack protobuf stream
-            $rpcResponse = new Response();
-            $rpcResponse->mergeFromString($data);
+            $this->rpcResponse->mergeFromString($data);
             $responseHeader = $this->rpcResponse->getHeader();
             $responseBody = $this->rpcResponse->getBody();
 
@@ -276,9 +217,30 @@ class SoaRpcClient extends AbstractRpcClient
             ];
         }catch (\Exception $e){
             //log error response data
-
             throw new MessageException(sprintf('%s %s', $e->getMessage(), $data));
         }
     }
 
+    /**
+     * obs的获取二进制字符串前面加上其长度算法字节
+     *
+     * @param string $value
+     * @return string
+     */
+    private function encodeLength($value)
+    {
+        $dataLengthByte = '';
+        while (true){
+            if (($value & ~0x7F) == 0) {
+                $dataLengthByte .= pack('c', $value);
+                break;
+            } else {
+                $b = (($value & 0x7F) | 0x80);
+                $dataLengthByte .= pack('c', $b);
+                $value = $value >> 7;
+            }
+        }
+
+        return $dataLengthByte;
+    }
 }

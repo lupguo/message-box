@@ -28,7 +28,7 @@ $body = [
 try {
     $ip = '192.168.10.10';
     $port = 43217;
-    $soaRpc = new \Rpc\Client\SoaRpcClient($ip, $port,5);
+    $soaRpc = new \Rpc\Client\RpcClient($ip, $port,5);
     $soaRpc->initRequestHeader([
         "type"=> 1,
         "version"=> "1.0.0",
@@ -53,13 +53,11 @@ try {
 
 }catch (Exception $e) {
     var_dump($e);
-    
     if ($e instanceof \Rpc\Exceptions\RpcException) {
         var_dump($e->getMessage());
     }else{
         var_dump($e->getMessage());
     }
-
 //    var_dump($e, $e->getMessage());
 }
 

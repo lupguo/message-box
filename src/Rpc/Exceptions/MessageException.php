@@ -7,12 +7,11 @@
  * @since   2017/11/15 11:32
  */
 
-namespace Rpc\Exceptions;
+namespace Rpc\Exceptions {
 
 
-use Throwable;
+    class MessageException extends RpcException
+    {
 
-class MessageException extends RpcException
-{
-
+    }
 }

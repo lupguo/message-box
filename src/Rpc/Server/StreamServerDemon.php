@@ -18,10 +18,12 @@ use Rpc\Transport\Stream\StreamTransport;
 class StreamServerDemon extends StreamTransport
 {
     /**
-     * @var 服务端流
+     * 资源流
+     *
+     * @var resource
      */
     private $serverStream;
-    
+
     /**
      * StreamServerDemon constructor.
      */
@@ -30,14 +32,13 @@ class StreamServerDemon extends StreamTransport
         //autoloader
         $autoloader = new Autoloader();
         $autoloader->register();
-        
+
         //stream socket listen
         $localSocket = 'tcp://192.168.10.10:43217';
         printf("LISTEN ON : [ %s ]\n", $localSocket);
-        $this->serverStream = stream_socket_server($localSocket, $errno, $errstr)
-            or die(sprintf("STREAM SERVER CREATE FAILED, %s", $errstr));
+        $this->serverStream = stream_socket_server($localSocket, $errno, $errstr) or die(sprintf("STREAM SERVER CREATE FAILED, %s", $errstr));
     }
-    
+
     /**
      * 开启服务接收客户端请求，并响应对应的Response响应（经过Protobuf处理过的）
      *
@@ -45,7 +46,8 @@ class StreamServerDemon extends StreamTransport
      * @param string $message
      * @param array  $body
      */
-    public function start($status = 200, $message='', $body = []){
+    public function start($status = 200, $message = '', $body = [])
+    {
         //client accept
         while ($clientSocket = stream_socket_accept($this->serverStream, -1, $peer)) {
             if ($clientSocket === false) {
@@ -53,29 +55,29 @@ class StreamServerDemon extends StreamTransport
             }
             //read request
             printf("CLIENT FROM: [ %s ] \n", $peer);
-    
+
             //set current r/w stream
             $this->setResource($clientSocket);
             $this->writeData($this->getResponseData($status, $message, $body));
-    
+
             //close resource
             $this->close($clientSocket);
         }
     }
-    
+
     /**
      * 打印用户的输入内容
-     *
      */
-    public function dumpReceiveData() {
+    public function dumpReceiveData()
+    {
         $rpcRequest = new Request();
         $rpcRequest->mergeFromString($this->readData());
         var_dump([
-           'header' => $rpcRequest->getHeader(),
-           'body'   => $rpcRequest->getBody(),
+            'header' => $rpcRequest->getHeader(),
+            'body'   => $rpcRequest->getBody(),
         ]);
     }
-    
+
     /**
      * 获取响应给客户端的数据
      *
@@ -85,7 +87,7 @@ class StreamServerDemon extends StreamTransport
      *
      * @return string
      */
-    private function getResponseData($status = 200, $message='', $body = [])
+    private function getResponseData($status = 200, $message = '', $body = [])
     {
         //response header
         $messageRespHeader = new Response_Header();
@@ -93,17 +95,16 @@ class StreamServerDemon extends StreamTransport
             ->setCode($status)
             ->setMessage($message)
             ->setMId(1)
-            ->setSuccess(1)
-        ;
-    
+            ->setSuccess(1);
+
         //response body
-        $body = is_array($body) ? $body : [$body];
-        $body = json_encode($body);
+        $body            = is_array($body) ? $body : [$body];
+        $body            = json_encode($body);
         $messageResponse = new Response();
         $messageResponse
             ->setHeader($messageRespHeader)
             ->setBody($body);
-    
+
         //response data
         return $messageResponse->serializeToString();
     }

@@ -15,10 +15,10 @@ interface InterfaceTransport
     /**
      * 基于TCP连接，写入数据到缓存区中
      *
-     * @param string $data      TCP发送的数据
+     * @param string $data TCP发送的数据
      */
     public function writeData($data);
-    
+
     /**
      * 基于TCP连接，从数据缓存区中读取数据
      */

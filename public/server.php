@@ -17,6 +17,6 @@ $responseBody = [
     ],
     'status' => 200
 ];
-$status = 200;
+$status  = 200;
 $message = 'hi, man';
-(new \Rpc\Server\StreamServerDemon())->start($status, $message,$responseBody);
+(new \Rpc\Server\StreamServerDemon())->start($status, $message, $responseBody);

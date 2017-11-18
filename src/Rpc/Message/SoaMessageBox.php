@@ -75,9 +75,8 @@ class SoaMessageBox implements InterfaceMessageBox
      * @var string
      */
     private $domain = '';
-    
+
     /**
-     *
      * @var string
      */
     private $url = '';
@@ -118,20 +117,20 @@ class SoaMessageBox implements InterfaceMessageBox
 
     /**
      * 利用Protobuf压缩传输协议相关初始化
-     *
      */
-    private function initPbf() {
+    private function initPbf()
+    {
         //autoloader
         $autoloader = new Autoloader();
         $autoloader->register();
 
         //request message header|body init
         $this->rpcRequestHeader = new Request_Header();
-        $this->rpcRequest = new Request();
+        $this->rpcRequest       = new Request();
 
         //response message header|body init
         $this->rpcResponseHeader = new Response_Header();
-        $this->rpcResponse = new Response();
+        $this->rpcResponse       = new Response();
 
         //autoloader unregister
         $autoloader->unRegister();
@@ -141,6 +140,7 @@ class SoaMessageBox implements InterfaceMessageBox
      * 初始化SOA RPC的请求头部
      *
      * @param array $requestHeader
+     *
      * @return $this
      */
     private function initPbfRequestHeader($requestHeader = [])
@@ -170,8 +170,9 @@ class SoaMessageBox implements InterfaceMessageBox
      * SOA服务的相关数据基于Protobuf进行数据封包
      *
      * @param string $method
-     * @param array $body
+     * @param array  $body
      * @param string $server
+     *
      * @return string length内容+protobuf处理过后的soa服务的消息体(已转成对应的协议字符内容)
      */
     public function pack($method = '', $body = [], $server = '')
@@ -179,7 +180,8 @@ class SoaMessageBox implements InterfaceMessageBox
         //change request header
         $this->rpcRequestHeader
             ->setService($server)
-            ->setMethod($method);
+            ->setMethod($method)
+        ;
 
         //fill body
         $bodyString = is_array($body) ? json_encode($body) : json_encode([$body]);
@@ -187,7 +189,7 @@ class SoaMessageBox implements InterfaceMessageBox
 
         //patch message
         $protobufRawString = $this->rpcRequest->serializeToString();
-        
+
         return $protobufRawString;
     }
 
@@ -201,7 +203,7 @@ class SoaMessageBox implements InterfaceMessageBox
      */
     public function unpack($data = '')
     {
-        try{
+        try {
             if (empty($data)) {
                 throw new \Exception('MESSAGE TO UNPACK IS EMPTY !!');
             }
@@ -209,7 +211,7 @@ class SoaMessageBox implements InterfaceMessageBox
             //unpack protobuf stream
             $this->rpcResponse->mergeFromString($data);
             $responseHeader = $this->rpcResponse->getHeader();
-            $responseBody = $this->rpcResponse->getBody();
+            $responseBody   = $this->rpcResponse->getBody();
 
             return [
                 'header' => [
@@ -218,9 +220,9 @@ class SoaMessageBox implements InterfaceMessageBox
                     'mid'     => $responseHeader->getMId(),
                     'success' => $responseHeader->getSuccess(),
                 ],
-                'body' => json_decode($responseBody, true) ?? false,
+                'body'   => json_decode($responseBody, true) ?? false,
             ];
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             //log error response data
             throw new MessageException(sprintf('%s %s', $e->getMessage(), $data));
         }

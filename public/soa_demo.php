@@ -8,7 +8,6 @@
  */
 
 
-
 $autoloader = require '../vendor/autoload.php';
 $autoloader->addPsr4('', ['../src']);
 
@@ -21,30 +20,30 @@ define('TRANSPORT_TYPE', 'OBS');
 //rpc模拟
 $header = [
     'service' => 'com.globalegrow.spi.morder.common.inter.OrderQueryService',
-    'method' => 'orderInfoList',
-    'domain' => '',
+    'method'  => 'orderInfoList',
+    'domain'  => '',
     'version' => '1.0.0',
-    'type' => 1,
-    'mId' => '',
-    'url' => '',
+    'type'    => 1,
+    'mId'     => '',
+    'url'     => '',
     'tokenId' => 'a7f1db0a670e3c3cabf81b62975f5891',
 ];
 
 $body = [
     'createStartTime' => '1508204763',
-    'createEndtime' => '1510796763',
-    'pageSize' => '10',
-    'pageNo' => '1',
-    'siteCode' => 'GB',
+    'createEndtime'   => '1510796763',
+    'pageSize'        => '10',
+    'pageNo'          => '1',
+    'siteCode'        => 'GB',
 ];
 
 try {
-    $ip = '10.40.2.106';
+    $ip   = '10.40.2.106';
     $port = 2087;
 
-    $transport = new \Rpc\Transport\Stream\StreamTransport($ip, $port, 3);
+    $transport  = new \Rpc\Transport\Stream\StreamTransport($ip, $port, 3);
     $messageBox = new \Rpc\Message\SoaMessageBox($header);
-    $rpcClient = new \Rpc\Client\RpcClient($transport, $messageBox);
+    $rpcClient  = new \Rpc\Client\RpcClient($transport, $messageBox);
 
     //订单SOA接口调试
     $method = 'orderInfoList';
@@ -53,10 +52,10 @@ try {
 
     echo json_encode($return);
 
-}catch (Exception $e) {
+} catch (Exception $e) {
     if ($e instanceof \Rpc\Exceptions\RpcException) {
         var_dump('RPC Exception: '.$e->getMessage());
-    }else{
+    } else {
         var_dump($e->getMessage());
     }
 }

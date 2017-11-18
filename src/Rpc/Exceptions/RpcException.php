@@ -1,6 +1,6 @@
 <?php
 /**
- * RPC - 基础异常
+ * RPC基础异常类
  *
  * @author  Terry (psr100)
  * @date    2017/11/15
@@ -14,9 +14,8 @@ use Throwable;
 
 class RpcException extends \Exception
 {
-    public function __construct($message = "", $code = 0,
-        Throwable $previous = null
-    ) {
+    public function __construct($message = "", $code = 0, Throwable $previous = null)
+    {
         parent::__construct(sprintf("SOA RPC RUN AN ERROR !! %s", $message), $code, $previous);
     }
     

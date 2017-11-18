@@ -1,5 +1,24 @@
 {
-    "require": {
-        "google/protobuf": "3.3.1"
+  "name": "globalgrow/grpc-protobuf",
+  "description": "基于prtotobuf开发出来的针对SOA服务的RPC调用！",
+  "type": "library",
+  "keywords": [
+    "globalgrow",
+    "protobuf"
+  ],
+  "homepage": "https://github.com/tkstorm/grpc-protobuf/tree/master",
+  "license": "MIT",
+  "authors": {
+    "name": "Terry",
+    "email": "terry.linuxglp@gmail.com",
+    "role": "Developer"
+  },
+  "require": {
+    "google/protobuf": "3.3.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Rpc\\": "src/Rpc/"
     }
+  }
 }

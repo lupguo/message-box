@@ -34,7 +34,7 @@ class StreamServerDemon extends StreamTransport
         $autoloader->register();
 
         //stream socket listen
-        $localSocket = 'tcp://192.168.10.10:43217';
+        $localSocket = 'tcp://0.0.0.0:43217';
         printf("LISTEN ON : [ %s ]\n", $localSocket);
         $this->serverStream = stream_socket_server($localSocket, $errno, $errstr) or die(sprintf("STREAM SERVER CREATE FAILED, %s", $errstr));
     }

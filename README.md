@@ -7,7 +7,8 @@
 ### 特性
 1. 基于protobuf，针对消息进行了编码/解码；
 2. 基于composer包方式管控，容易引入到项目中；
-3. 目录结构清晰;
+3. 目录结构清晰，职责功能分清;
+4. 串行化的Rpc调用，仅做到了连接复用（后期需要改进的一个点）；
 
 ### 准备工作
 
@@ -69,9 +70,10 @@ $ protoc -I Idl/ --php_out=. Request.proto Response.proto
 1. 启动`模拟的rpc server`: 
 ```
 vagrant@homestead:~/www/open-platform/grpc-protobuf/public$ php server.php 
-LISTEN ON : [ tcp://192.168.10.10:43217 ]
-CLIENT FROM: [ 192.168.10.10:34924 ] 
-CLIENT FROM: [ 192.168.10.10:34928 ] 
+LISTEN ON : [ tcp://0.0.0.0:43217 ]
+CLIENT FROM: [ 127.0.0.1:57774 ] 
+CLIENT FROM: [ 127.0.0.1:57778 ] 
+CLIENT FROM: [ 127.0.0.1:57782 ] 
 ```
 2. 配置域名、请求后解析得到
 ```
@@ -104,11 +106,13 @@ array (size=2)
 
 #### Socket 服务
 - 端口监听脚本： 
-    - `watch -d -n 0.1 'netstat -an|grep -E "43210|43211"'`
-    - `while true;do netstat -an|grep 43210; echo "----------"; sleep 2; done`
-- 服务端执行：`php -f server.php`，开启43210端口；
+    - `watch -n 1 'netstat -an|grep -E "4321[0-9]"'`
+    - `while true;do netstat -an|grep -E "4321[0-9]"; echo "----------"; sleep 2; done`
+- 服务端执行：`php public/server.php`，开启43210端口；
 - 客户端执行：`telnet localhost 43210`；
 
 ### 待办
 - 集成到Laravel框架中；
 - 增加Log部分；
+- grpc对接；
+- 连接池以及NIO等相关信息；

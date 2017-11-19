@@ -6,8 +6,9 @@
  * Time: 22:42
  */
 
-$autoloader = require '../vendor/autoload.php';
-$autoloader->addPsr4('', ['../src']);
+$rootPath   = dirname(__DIR__);
+$autoloader = require $rootPath.'/vendor/autoload.php';
+$autoloader->addPsr4('', [$rootPath.'/src']);
 
 define('TRANSPORT_TYPE', 'NEW');
 
@@ -18,39 +19,39 @@ define('TRANSPORT_TYPE', 'NEW');
 //rpc客户端
 
 $body = [
-    "type" => 1,
+    "type"     => 1,
     "platform" => 1,
-    "pageSize"	=> 20,
-    "pageNo"	=> 1,
-    "siteCode"	=> "GLB",
+    "pageSize" => 20,
+    "pageNo"   => 1,
+    "siteCode" => "GLB",
 ];
 
 $header = [
-    "type"=> 1,
-    "version"=> "1.0.0",
-    "domain"=> "",
-    "tokenId"=> "a7f1db0a670e3c3cabf81b62975f5891"
+    "type"    => 1,
+    "version" => "1.0.0",
+    "domain"  => "",
+    "tokenId" => "a7f1db0a670e3c3cabf81b62975f5891",
 ];
 
 try {
-    $ip = '192.168.10.10';
+    $ip   = '192.168.10.10';
     $port = 43217;
-    
-    $transport = new \Rpc\Transport\Stream\StreamTransport($ip, $port, 3);
-    $messageBox = new \Rpc\Message\SoaMessageBox($header);
-    $rpcClient = new \Rpc\Client\RpcClient($transport, $messageBox);
 
-    $method = 'orderInfoList';
+    $transport  = new \Rpc\Transport\Stream\StreamTransport($ip, $port, 3);
+    $messageBox = new \Rpc\Message\SoaMessageBox($header);
+    $rpcClient  = new \Rpc\Client\RpcClient($transport, $messageBox);
+
+    $method    = 'orderInfoList';
     $soaServer = "com.globalegrow.spi.morder.common.inter.OrderQueryService";
-    
+
     $return = $rpcClient->call($method, $body, $soaServer);
     var_dump($return);
 
-}catch (Exception $e) {
+} catch (Exception $e) {
     var_dump($e);
     if ($e instanceof \Rpc\Exceptions\RpcException) {
         var_dump($e->getMessage());
-    }else{
+    } else {
         var_dump($e->getMessage());
     }
 //    var_dump($e, $e->getMessage());

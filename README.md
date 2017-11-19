@@ -4,28 +4,36 @@
 
 > gRPC: 谷歌出品的rpc解决方案，默认是依托于protobuf协议；
 
+### 特性
+1. 基于protobuf，针对消息进行了编码/解码；
+2. 基于composer包方式管控，容易引入到项目中；
+3. 目录结构清晰;
+
 ### 准备工作
 
 #### 1、安装protoc编译器：https://github.com/google/protobuf
 
 #### 2. RPC目录结构说明：
-	- 客户端相关；
-	- 异常管控；
-	- Protobuf相关(Idl、Request、Response响应等)；
-	- 模拟RPC服务调试；
-	- 传输方式基于(Stream|Socket)等；
+- 客户端相关；
+- 异常管控；
+- Protobuf相关(Idl、Request、Response响应等)；
+- 模拟RPC服务调试；
+- 传输方式基于(Stream|Socket)等；
 	```
+	src/
 	└── Rpc
 	    ├── Autoloader.php
-	    ├── Client								--------------- 1、客户端相关
-	    │   ├── AbstractRpcClient.php
-	    │   └── SoaRpcClient.php
-	    ├── Exceptions 							--------------- 2、异常相关
+	    ├── Client
+	    │   └── RpcClient.php
+	    ├── Exceptions		
 	    │   ├── ClientException.php
 	    │   ├── MessageException.php
 	    │   ├── RpcException.php
 	    │   └── TransportException.php
-	    ├── Protobuf 							--------------- 3、Protobuf消息载体
+	    ├── Message
+	    │   ├── InterfaceMessageBox.php
+	    │   └── SoaMessageBox.php
+	    ├── Protobuf
 	    │   ├── GPBMetadata
 	    │   │   ├── Request.php
 	    │   │   └── Response.php
@@ -34,13 +42,21 @@
 	    │   │   └── Response.proto
 	    │   └── Message
 	    │       └── Payload
-	    ├── Server 								--------------- 4、模拟服务
+	    │           ├── Request_Header.php
+	    │           ├── Request.php
+	    │           ├── Response_Header.php
+	    │           └── Response.php
+	    ├── Response
+	    ├── Server
 	    │   └── StreamServerDemon.php
-	    └── Transport							--------------- 5、传输方式(Stream|Socket)
-	        ├── AbstractTcpTransport.php
-	        ├── InterfaceTcpTransport.php
+	    └── Transport
+	        ├── Http
+	        │   └── HttpTransport.php
+	        ├── InterfaceTransport.php
+	        ├── Socket
 	        └── Stream
-	            └── TcpStream.php
+	            ├── SoaStreamTransport.php
+	            └── StreamTransport.php
 	```
 #### 3. 执行相关protoc文件的编译（由于只用到到`Request.proto`和`Response.proto`，做了预编译，此步骤可以忽略）：
 ```
@@ -96,4 +112,3 @@ array (size=2)
 ### 待办
 - 集成到Laravel框架中；
 - 增加Log部分；
-- 相关代码整理；

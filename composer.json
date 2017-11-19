@@ -1,9 +1,9 @@
 {
-  "name": "globalgrow/grpc-protobuf",
-  "description": "基于prtotobuf开发出来的针对SOA服务的RPC调用！",
+  "name": "globalegrow/grpc-protobuf",
+  "description": "基于protobuf开发出来的针对SOA服务的RPC调用！",
   "type": "library",
   "keywords": [
-    "globalgrow",
+    "globalegrow",
     "protobuf"
   ],
   "homepage": "https://github.com/tkstorm/grpc-protobuf/tree/master",

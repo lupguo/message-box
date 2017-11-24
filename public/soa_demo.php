@@ -8,10 +8,9 @@
  */
 
 
-$autoloader = require '../vendor/autoload.php';
-$autoloader->addPsr4('', ['../src']);
-
-define('TRANSPORT_TYPE', 'OBS');
+$rootPath   = dirname(__DIR__);
+$autoloader = require $rootPath.'/vendor/autoload.php';
+$autoloader->addPsr4('', [$rootPath.'/src']);
 
 // test socket
 //$demoScript = new \MySockets\RequestBySocket();
@@ -30,8 +29,8 @@ $header = [
 ];
 
 $body = [
-    'createStartTime' => '1508204763',
-    'createEndtime'   => '1510796763',
+    'createStartTime' => '1508949941',
+    'createEndtime'   => '1511541941',
     'pageSize'        => '10',
     'pageNo'          => '1',
     'siteCode'        => 'GB',
@@ -41,7 +40,7 @@ try {
     $ip   = '10.40.2.106';
     $port = 2087;
 
-    $transport  = new \Rpc\Transport\Stream\StreamTransport($ip, $port, 3);
+    $transport  = new \Rpc\Transport\Stream\SoaStreamTransport($ip, $port, 3);
     $messageBox = new \Rpc\Message\SoaMessageBox($header);
     $rpcClient  = new \Rpc\Client\RpcClient($transport, $messageBox);
 

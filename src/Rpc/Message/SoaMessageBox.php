@@ -213,14 +213,13 @@ class SoaMessageBox implements InterfaceMessageBox
             $responseHeader = $this->rpcResponse->getHeader();
             $responseBody   = $this->rpcResponse->getBody();
 
+            //get body data
+            $body = json_decode($responseBody, true);
+
             return [
-                'header' => [
-                    'code'    => $responseHeader->getCode(),
-                    'msg'     => $responseHeader->getMessage(),
-                    'mid'     => $responseHeader->getMId(),
-                    'success' => $responseHeader->getSuccess(),
-                ],
-                'body'   => json_decode($responseBody, true) ?? false,
+                'code' => $responseHeader->getCode(),
+                'msg'  => $responseHeader->getMessage(),
+                'data' => isset($body['data']) ? $body['data'] : []
             ];
         } catch (\Exception $e) {
             //log error response data

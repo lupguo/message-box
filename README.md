@@ -59,11 +59,13 @@
 	            ├── SoaStreamTransport.php
 	            └── StreamTransport.php
 	```
+
 #### 3. 执行相关protoc文件的编译（由于只用到到`Request.proto`和`Response.proto`，做了预编译，此步骤可以忽略）：
 ```
 $ cd src/Rpc/Protobuf/
 $ protoc -I Idl/ --php_out=. Request.proto Response.proto
 ```
+
 #### 4. 调试
 > 模拟起一个RPC服务端，提供数据接收和响应
 

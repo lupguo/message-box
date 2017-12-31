@@ -48,15 +48,16 @@ class RpcClient
     /**
      * 调取SOA服务
      *
-     * @param string $method
-     * @param array  $body
-     * @param string $server
+     * @param string $method        调用SOA方法名
+     * @param string $version       调用SOA方法使用的版本
+     * @param array  $body          调用SOA方法的请求数据
+     * @param string $server        SOA服务名称
      *
-     * @return \stdClass | false 成功返回对应的RPC调用接口
+     * @return false|\stdClass 成功返回对应的RPC调用接口
      */
-    public function call($method = '', $body = [], $server = '')
+    public function call($method = '', $version = '', $body = [], $server = '')
     {
-        $reqPackedMessage = $this->messageBox->pack($method, $body, $server);
+        $reqPackedMessage = $this->messageBox->pack($method, $version, $body, $server);
 
         $respPackedData = $this->transport->writeAndRead($reqPackedMessage);
 

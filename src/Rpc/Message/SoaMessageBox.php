@@ -140,8 +140,6 @@ class SoaMessageBox implements InterfaceMessageBox
      * 初始化SOA RPC的请求头部
      *
      * @param array $requestHeader
-     *
-     * @return $this
      */
     private function initPbfRequestHeader($requestHeader = [])
     {
@@ -169,18 +167,20 @@ class SoaMessageBox implements InterfaceMessageBox
     /**
      * SOA服务的相关数据基于Protobuf进行数据封包
      *
-     * @param string $method
-     * @param array  $body
-     * @param string $server
+     * @param string $method  调用SOA方法名
+     * @param string $version 调用SOA方法使用的版本
+     * @param array  $body    调用SOA方法的请求数据
+     * @param string $server  SOA服务名称
      *
      * @return string length内容+protobuf处理过后的soa服务的消息体(已转成对应的协议字符内容)
      */
-    public function pack($method = '', $body = [], $server = '')
+    public function pack($method = '',$version = '', $body = [], $server = '')
     {
         //change request header
         $this->rpcRequestHeader
             ->setService($server)
             ->setMethod($method)
+            ->setVersion($version)
         ;
 
         //fill body

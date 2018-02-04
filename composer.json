@@ -8,13 +8,16 @@
   ],
   "homepage": "https://github.com/tkstorm/grpc-protobuf/tree/master",
   "license": "MIT",
-  "authors": {
-    "name": "Terry",
-    "email": "terry.linuxglp@gmail.com",
-    "role": "Developer"
-  },
+  "authors": [
+    {
+      "name": "Terry",
+      "email": "terry.linuxglp@gmail.com",
+      "role": "Developer"
+    }
+  ],
   "require": {
-    "google/protobuf": "3.3.1"
+    "google/protobuf": "3.3.1",
+    "guzzlehttp/guzzle": "^6.3"
   },
   "autoload": {
     "psr-4": {
